@@ -3,9 +3,25 @@
 
 #include "re2ast.cpp"
 
+
+void test_re2ast() {
+    std::string re1 = "b[aeiou]bb(?:le){1,3}";
+    Regex2AST re2ast1(re1);
+    auto x1 = re2ast1.parse();
+    std::cout << x1->print() << std::endl;
+
+    std::string re2 = "[b-chm-pP]at|ot";
+    Regex2AST re2ast2(re2);
+    auto x2 = re2ast2.parse();
+    std::cout << x2->print() << std::endl;
+
+
+    std::string re3 = "gr(a|e)y";
+    Regex2AST re2ast3(re3);
+    auto x3 = re2ast3.parse();
+    std::cout << x3->print() << std::endl;
+}
+
 int main() {
-    std::string re = "b[aeiou]bb(?:le){1,3}";
-    Regex2AST re2ast(re);
-    auto x = re2ast.parse();
-    std::cout<<x->print()<<std::endl;
+    test_re2ast();
 }

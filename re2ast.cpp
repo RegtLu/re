@@ -2,6 +2,7 @@
 // Created by Regt on 25-8-8.
 //
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <ostream>
@@ -178,6 +179,9 @@ public:
         }
         if (last == '-') { elements.push_back('-'); }
         next();
+        std::sort(elements.begin(), elements.end());
+        auto idx = std::unique(elements.begin(), elements.end());
+        elements.erase(idx, elements.end());
         return std::make_shared<Set>(elements);
     }
 
@@ -211,7 +215,7 @@ public:
         } else {
             node = parse_Char();
         }
-        while (ch != '\0' && ch != '|'&& ch != ')') {
+        while (ch != '\0' && ch != '|' && ch != ')') {
             if (ch == '[') {
                 std::shared_ptr<RegexNode> node2 = parse_Set();
                 node = std::make_shared<Concat>(node, node2);
