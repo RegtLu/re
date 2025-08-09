@@ -44,6 +44,21 @@ public:
     }
 };
 
+class NegSet : public RegexNode {
+public:
+    std::vector<char> elements;
+
+    explicit NegSet(std::vector<char> elements) : elements(std::move(elements)) {
+    }
+
+    std::string print() const override {
+        std::string str = "NegSet([^";
+        for (char c: elements) str += c;
+        str += "])";
+        return str;
+    }
+};
+
 
 class Repeat : public RegexNode {
 public:
@@ -156,10 +171,17 @@ public:
 
     std::shared_ptr<RegexNode> parse_Set() {
         std::vector<char> elements;
+        bool neg = false;
         char last = ch;
         next();
         while (ch != ']') {
             last = ch;
+            if (ch == '^') {
+                if (elements.empty()) {
+                    neg = true;
+                    next();
+                }
+            }
             if (ch == '-') {
                 if (elements.empty()) {
                     elements.push_back(ch);
@@ -182,7 +204,11 @@ public:
         std::sort(elements.begin(), elements.end());
         auto idx = std::unique(elements.begin(), elements.end());
         elements.erase(idx, elements.end());
-        return std::make_shared<Set>(elements);
+        if (neg) {
+            return std::make_shared<NegSet>(elements);
+        } else {
+            return std::make_shared<Set>(elements);
+        }
     }
 
     std::shared_ptr<RegexNode> parse_Repeat(std::shared_ptr<RegexNode> node) {

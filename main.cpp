@@ -20,6 +20,12 @@ void test_re2ast() {
     Regex2AST re2ast3(re3);
     auto x3 = re2ast3.parse();
     std::cout << x3->print() << std::endl;
+
+
+    std::string re4 = "a[^a-zA-Z0-6]c";
+    Regex2AST re2ast4(re4);
+    auto x4 = re2ast4.parse();
+    std::cout << x4->print() << std::endl;
 }
 
 int main() {
