@@ -14,6 +14,17 @@ public:
     virtual std::string print() const = 0;
 };
 
+class Empty : public RegexNode {
+public:
+    explicit Empty() {
+    }
+
+    std::string print() const override {
+        std::string str = "Empty()";
+        return str;
+    }
+};
+
 
 class Char : public RegexNode {
 public:
@@ -234,28 +245,42 @@ public:
 
     std::shared_ptr<RegexNode> parse_Concat() {
         std::shared_ptr<RegexNode> node;
-        if (ch == '(') {
-            node = parse_Group();
-        } else if (ch == '[') {
+        while (ch != '\0' && ch != '|' && ch != ')') {
+            std::shared_ptr<RegexNode> atom = parse_Atom();
+            if (!node) {
+                node = atom;
+            } else {
+                node = std::make_shared<Concat>(node, atom);
+            }
+        }
+        return node;
+    }
+
+    std::shared_ptr<RegexNode> parse_Atom() {
+        std::shared_ptr<RegexNode> node;
+        if (ch == '[') {
             node = parse_Set();
+        } else if (ch == '(') {
+            node = parse_Group();
+        } else if (ch == '{') {
+            throw std::runtime_error("Wrong Atom");
+        } else if (ch == '*') {
+            throw std::runtime_error("Wrong Atom");
+        } else if (ch == '+') {
+            throw std::runtime_error("Wrong Atom");
+        } else if (ch == '?') {
+            throw std::runtime_error("Wrong Atom");
         } else {
             node = parse_Char();
         }
-        while (ch != '\0' && ch != '|' && ch != ')') {
-            if (ch == '[') {
-                std::shared_ptr<RegexNode> node2 = parse_Set();
-                node = std::make_shared<Concat>(node, node2);
-            } else if (ch == '{') {
-                node = parse_Repeat(node);
-            } else if (ch == '*') {
-                node = parse_Star(node);
-            } else if (ch == '(') {
-                std::shared_ptr<RegexNode> node2 = parse_Group();
-                node = std::make_shared<Concat>(node, node2);
-            } else {
-                std::shared_ptr<RegexNode> node2 = parse_Char();
-                node = std::make_shared<Concat>(node, node2);
-            }
+        if (ch == '{') {
+            node = parse_Repeat(node);
+        } else if (ch == '*') {
+            node = parse_Star(node);
+        } else if (ch == '+') {
+            node = parse_Plus(node);
+        } else if (ch == '?') {
+            node = parse_Qmark(node);
         }
         return node;
     }
@@ -283,5 +308,15 @@ public:
             next();
             return std::make_shared<Group>(node);
         }
+    }
+
+    std::shared_ptr<RegexNode> parse_Plus(std::shared_ptr<RegexNode> node) {
+        next();
+        return std::make_shared<Concat>(node, std::make_shared<Star>(node));
+    }
+
+    std::shared_ptr<RegexNode> parse_Qmark(std::shared_ptr<RegexNode> node) {
+        next();
+        return std::make_shared<Or>(std::make_shared<Empty>(), node);
     }
 };

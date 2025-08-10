@@ -26,6 +26,12 @@ void test_re2ast() {
     Regex2AST re2ast4(re4);
     auto x4 = re2ast4.parse();
     std::cout << x4->print() << std::endl;
+
+
+    std::string re5 = "[cd]+o(es)?";
+    Regex2AST re2ast5(re5);
+    auto x5 = re2ast5.parse();
+    std::cout << x5->print() << std::endl;
 }
 
 int main() {
