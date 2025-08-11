@@ -8,5 +8,6 @@
 void test_re2ast();
 void test_ast2nfa();
 void test_nfa2dfa();
+void test_re();
 
 #endif //TEST_H

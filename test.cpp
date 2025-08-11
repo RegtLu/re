@@ -8,6 +8,7 @@
 #include "re2ast.h"
 #include "ast2nfa.h"
 #include "nfa2dfa.h"
+#include "re.h"
 #include "test.h"
 
 void test_re2ast() {
@@ -129,4 +130,13 @@ void test_nfa2dfa() {
     NFA2DFA nfa2dfa5(g5);
     auto d5 = nfa2dfa5.transform();
     dumpDFA(d5);
+}
+
+void test_re() {
+    RE re1("b[aeiou]bb(?:le){1,3}");
+    re1.compile();
+    std::cout<<re1.match("babblele")<<std::endl;
+    std::cout<<re1.match("bubb")<<std::endl;
+    std::cout<<re1.match("bubbl")<<std::endl;
+    std::cout<<re1.match("bebblelelele")<<std::endl;
 }
