@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 #include "re2ast.h"
 

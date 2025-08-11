@@ -9,4 +9,7 @@ add_executable(re main.cpp
         sharedefine.cpp
         re2ast.cpp
         re2ast.h
-        ast2nfa.h)
+        ast2nfa.h
+        nfa2dfa.h
+        test.cpp
+        test.h)
