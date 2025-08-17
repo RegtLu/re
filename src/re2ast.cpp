@@ -9,6 +9,7 @@
 
 #include "re2ast.h"
 
+using namespace re;
 
 std::string Empty::print() const {
     std::string str = "Empty()";
@@ -77,6 +78,11 @@ void Regex2AST::next() {
     ch = pos < input.size() ? input[pos++] : '\0';
     if (ch == '\\') {
         ch = pos < input.size() ? input[pos++] : '\0';
+        if (escape_char.contains(ch)) {
+            ch = escape_char[ch];
+        } else {
+            throw std::runtime_error("No such escape character.");
+        }
     }
 }
 

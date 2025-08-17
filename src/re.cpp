@@ -7,8 +7,9 @@
 #include "re2ast.h"
 #include "ast2nfa.h"
 #include "nfa2dfa.h"
-
 #include "re.h"
+
+using namespace re;
 
 void RE::compile() {
     Regex2AST re2ast(re_str);
@@ -21,7 +22,7 @@ bool RE::match(std::string input) {
     int pos = 0;
     char ch = input[pos];
     auto node = root;
-    while (node->edges.find(ch) != node->edges.end() && pos < input.length()) {
+    while (node->edges.contains(ch) && pos < input.length()) {
         node = node->edges.find(ch)->second;
         pos++;
         ch = input[pos];
