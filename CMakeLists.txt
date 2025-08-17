@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 20)
+
 add_library(re STATIC
         src/ast2nfa.cpp
         src/nfa2dfa.cpp
