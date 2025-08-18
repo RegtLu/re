@@ -5,9 +5,10 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <ostream>
 
 #include "re2ast.h"
+
+#include <iostream>
 
 using namespace re;
 
@@ -18,22 +19,42 @@ std::string Empty::print() const {
 
 
 std::string Char::print() const {
-    std::string str = "Char(" + std::string(1, value) + ")";
+    std::string value_c;
+    if (value == '\n') {
+        value_c = "\\n";
+    } else if (value == '\r') {
+        value_c = "\\r";
+    } else if (value == '\v') {
+        value_c = "\\v";
+    } else if (value == '\f') {
+        value_c = "\\f";
+    } else if (value == '\t') {
+        value_c = "\\t";
+    } else {
+        value_c = std::string(1, value);
+    }
+    std::string str = "Char(" + value_c + ")";
     return str;
 }
 
 
 std::string Set::print() const {
     std::string str = "Set([";
-    for (char c: elements) str += c;
-    str += "])";
-    return str;
-}
-
-
-std::string NegSet::print() const {
-    std::string str = "NegSet([^";
-    for (char c: elements) str += c;
+    for (char c: elements) {
+        if (c == '\n') {
+            str += "\\n";
+        } else if (c == '\r') {
+            str += "\\r";
+        } else if (c == '\v') {
+            str += "\\v";
+        } else if (c == '\f') {
+            str += "\\f";
+        } else if (c == '\t') {
+            str += "\\t";
+        } else {
+            str += c;
+        }
+    }
     str += "])";
     return str;
 }
@@ -76,18 +97,18 @@ std::string NoneCaptureGroup::print() const {
 
 void Regex2AST::next() {
     ch = pos < input.size() ? input[pos++] : '\0';
-    if (ch == '\\') {
-        ch = pos < input.size() ? input[pos++] : '\0';
-        if (escape_char.contains(ch)) {
-            ch = escape_char[ch];
-        } else {
-            throw std::runtime_error("No such escape character.");
-        }
-    }
 }
 
 std::shared_ptr<RegexNode> Regex2AST::parse() {
     return parse_Or();
+}
+
+std::vector<char> Regex2AST::make_complement(std::vector<char> elements) {
+    auto s = Sigma;
+    std::erase_if(s, [elements](char c) {
+        return std::find(elements.begin(), elements.end(), c) != elements.end();
+    });
+    return s;
 }
 
 std::shared_ptr<RegexNode> Regex2AST::parse_Char() {
@@ -103,6 +124,16 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Set() {
     next();
     while (ch != ']') {
         last = ch;
+        if (ch == '\\') {
+            std::shared_ptr<RegexNode> node = parse_Escape();
+            if (auto char_ = std::dynamic_pointer_cast<Char>(node)) {
+                elements.push_back(char_->value);
+            } else {
+                auto set = std::dynamic_pointer_cast<Set>(node);
+                elements.insert(elements.end(), set->elements.begin(), set->elements.end());
+            }
+            continue;
+        }
         if (ch == '^') {
             if (elements.empty()) {
                 neg = true;
@@ -132,18 +163,22 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Set() {
     auto idx = std::unique(elements.begin(), elements.end());
     elements.erase(idx, elements.end());
     if (neg) {
-        return std::make_shared<NegSet>(elements);
-    } else {
-        return std::make_shared<Set>(elements);
+        elements = make_complement(elements);
     }
+    return std::make_shared<Set>(elements);
 }
 
 std::shared_ptr<RegexNode> Regex2AST::parse_Repeat(std::shared_ptr<RegexNode> node) {
     next();
     std::string min, max;
-    while (ch != ',') {
+    while (ch != ',' && ch != '}') {
         min += ch;
         next();
+    }
+    if (ch == '}') {
+        next();
+        max = min;
+        return std::make_shared<Repeat>(node, std::stoi(min), std::stoi(max));
     }
     next();
     while (ch != '}') {
@@ -151,7 +186,12 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Repeat(std::shared_ptr<RegexNode> no
         next();
     }
     next();
-    return std::make_shared<Repeat>(node, std::stoi(min), std::stoi(max));
+    if (min == "") {
+        min = "0";
+        return std::make_shared<Repeat>(node, std::stoi(min), std::stoi(max));
+    }
+    return std::make_shared<Concat>(std::make_shared<Repeat>(node, std::stoi(min), std::stoi(min)),
+                                    std::make_shared<Star>(node));
 }
 
 std::shared_ptr<RegexNode> Regex2AST::parse_Star(std::shared_ptr<RegexNode> node) {
@@ -174,7 +214,9 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Concat() {
 
 std::shared_ptr<RegexNode> Regex2AST::parse_Atom() {
     std::shared_ptr<RegexNode> node;
-    if (ch == '[') {
+    if (ch == '\\') {
+        node = parse_Escape();
+    } else if (ch == '[') {
         node = parse_Set();
     } else if (ch == '(') {
         node = parse_Group();
@@ -234,4 +276,70 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Plus(std::shared_ptr<RegexNode> node
 std::shared_ptr<RegexNode> Regex2AST::parse_Qmark(std::shared_ptr<RegexNode> node) {
     next();
     return std::make_shared<Or>(std::make_shared<Empty>(), node);
+}
+
+std::shared_ptr<RegexNode> Regex2AST::parse_Escape() {
+    next();
+    std::vector<char> elements;
+    if (ch == 'n') {
+        ch = '\n';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == '\\') {
+        ch = '\\';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == 't') {
+        ch = '\t';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == 'r') {
+        ch = '\r';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == 'v') {
+        ch = '\v';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == 'f') {
+        ch = '\f';
+        next();
+        return std::make_shared<Char>(ch);
+    }
+    if (ch == 'd') {
+        elements = Digits;
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    if (ch == 'D') {
+        elements = make_complement(Digits);
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    if (ch == 's') {
+        elements = Whitespace;
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    if (ch == 'S') {
+        elements = make_complement(Whitespace);
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    if (ch == 'w') {
+        elements = Words;
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    if (ch == 'W') {
+        elements = make_complement(Words);
+        next();
+        return std::make_shared<Set>(elements);
+    }
+    return std::make_shared<Char>(ch);
 }

@@ -117,12 +117,42 @@ namespace re {
         std::string print() const override;
     };
 
-    inline std::unordered_map<char, char> escape_char = {{'n', '\n'}, {'r', '\r'}, {'t', '\t'}, {'\\', '\\'}};
+    inline std::vector<char> Sigma = {
+        ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5',
+        '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+        'L',
+        'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b',
+        'c',
+        'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
+        'z',
+        '{', '|', '}', '~',
+        // Whitespace
+        '\n', '\t', '\v', '\f', '\r'
+    };
+
+    inline std::vector<char> Digits = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
+    inline std::vector<char> Whitespace = {
+        ' ', '\n', '\t', '\v', '\f', '\r'
+    };
+    inline std::vector<char> Words = {
+        '0', '1', '2', '3', '4', '5',
+        '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+        'L',
+        'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a', 'b',
+        'c',
+        'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
+        'z'
+    };
+
 
     class Regex2AST {
         std::string &input;
         int pos = 0;
         char ch;
+
+        std::vector<char> make_complement(std::vector<char> elements);
 
         std::shared_ptr<RegexNode> parse_Char();
 
@@ -143,6 +173,8 @@ namespace re {
         std::shared_ptr<RegexNode> parse_Plus(std::shared_ptr<RegexNode> node);
 
         std::shared_ptr<RegexNode> parse_Qmark(std::shared_ptr<RegexNode> node);
+
+        std::shared_ptr<RegexNode> parse_Escape();
 
     public:
         explicit Regex2AST(std::string &input) : input(input) {

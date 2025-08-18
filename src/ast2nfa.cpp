@@ -36,9 +36,7 @@ Fragment AST2NFA::_build(std::shared_ptr<RegexNode> childAST) {
         return build_Char(ch->value);
     } else if (auto set = std::dynamic_pointer_cast<Set>(childAST)) {
         return build_Set(set->elements);
-    } else if (auto negset = std::dynamic_pointer_cast<NegSet>(childAST)) {
-        return build_NegSet(negset->elements);
-    } else if (auto repeat = std::dynamic_pointer_cast<Repeat>(childAST)) {
+    }else if (auto repeat = std::dynamic_pointer_cast<Repeat>(childAST)) {
         return build_Repeat(repeat->body, repeat->min, repeat->max);
     } else if (auto star = std::dynamic_pointer_cast<Star>(childAST)) {
         return build_Star(star->body);
@@ -78,14 +76,6 @@ Fragment AST2NFA::build_Set(const std::vector<char> &elements) {
         m->addEpsilonEdge(e);
     }
     return {s, e};
-}
-
-Fragment AST2NFA::build_NegSet(const std::vector<char> &elements) {
-    auto s = Sigma;
-    std::erase_if(s, [elements](char c) {
-        return std::find(elements.begin(), elements.end(), c) != elements.end();
-    });
-    return build_Set(s);
 }
 
 Fragment AST2NFA::build_Repeat(std::shared_ptr<RegexNode> body, int min, int max) {
