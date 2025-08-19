@@ -9,9 +9,8 @@
 #include <utility>
 #include <memory>
 
-#include "../src/nfa2dfa.h"
-
 namespace re {
+    class DFANode;
     class RE {
         std::string re_str;
         std::shared_ptr<DFANode> root;
@@ -21,6 +20,8 @@ namespace re {
         }
 
         void compile();
+
+        int match_pos(std::string input);
 
         bool match(std::string input);
     };

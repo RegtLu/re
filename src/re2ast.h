@@ -45,17 +45,6 @@ namespace re {
         std::string print() const override;
     };
 
-
-    class NegSet : public RegexNode {
-    public:
-        std::vector<char> elements;
-
-        explicit NegSet(std::vector<char> elements) : elements(std::move(elements)) {
-        }
-
-        std::string print() const override;
-    };
-
     class Repeat : public RegexNode {
     public:
         std::shared_ptr<RegexNode> body;

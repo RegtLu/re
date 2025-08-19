@@ -18,6 +18,22 @@ void RE::compile() {
     root = nfa2dfa.transform();
 }
 
+int RE::match_pos(std::string input) {
+    int pos = 0;
+    char ch = input[pos];
+    auto node = root;
+    while (node->edges.contains(ch) && pos < input.length()) {
+        node = node->edges.find(ch)->second;
+        pos++;
+        ch = input[pos];
+    }
+    if (node->isEnd) {
+        return pos;
+    } else {
+        return -1;
+    }
+}
+
 bool RE::match(std::string input) {
     int pos = 0;
     char ch = input[pos];
