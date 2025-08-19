@@ -9,8 +9,8 @@
 #include "test.h"
 
 void test_re() {
-    re::RE re1(R"(a.{2,3}b)");
+    re::RE re1(R"(\[\[.*\]\])");
     re1.compile();
-    std::cout<<re1.match_pos("a__b")<<std::endl;
-    std::cout<<re1.match_pos("a vb")<<std::endl;
+    std::cout<<re1.match_pos("[[123]]")<<std::endl;
+    std::cout<<re1.match_pos("[[123]][[]]")<<std::endl;
 }

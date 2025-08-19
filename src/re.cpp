@@ -9,11 +9,15 @@
 #include "nfa2dfa.h"
 #include "re.h"
 
+#include <iostream>
+
 using namespace re;
 
 void RE::compile() {
     Regex2AST re2ast(re_str);
-    AST2NFA ast2nfa(re2ast.parse());
+    auto a = re2ast.parse();
+    std::cout << a->print() << std::endl;
+    AST2NFA ast2nfa(a);
     NFA2DFA nfa2dfa(ast2nfa.build());
     root = nfa2dfa.transform();
 }

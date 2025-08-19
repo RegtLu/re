@@ -135,7 +135,6 @@ namespace re {
         'z'
     };
 
-
     class Regex2AST {
         std::string &input;
         int pos = 0;
@@ -175,6 +174,5 @@ namespace re {
         std::shared_ptr<RegexNode> parse();
     };
 }
-
 
 #endif //RE2AST_H

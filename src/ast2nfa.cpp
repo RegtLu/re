@@ -36,7 +36,7 @@ Fragment AST2NFA::_build(std::shared_ptr<RegexNode> childAST) {
         return build_Char(ch->value);
     } else if (auto set = std::dynamic_pointer_cast<Set>(childAST)) {
         return build_Set(set->elements);
-    }else if (auto repeat = std::dynamic_pointer_cast<Repeat>(childAST)) {
+    } else if (auto repeat = std::dynamic_pointer_cast<Repeat>(childAST)) {
         return build_Repeat(repeat->body, repeat->min, repeat->max);
     } else if (auto star = std::dynamic_pointer_cast<Star>(childAST)) {
         return build_Star(star->body);

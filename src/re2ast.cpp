@@ -8,8 +8,6 @@
 
 #include "re2ast.h"
 
-#include <iostream>
-
 using namespace re;
 
 std::string Empty::print() const {
@@ -93,7 +91,6 @@ std::string NoneCaptureGroup::print() const {
     std::string str = "NoneCaptureGroup(" + body->print() + ")";
     return str;
 }
-
 
 void Regex2AST::next() {
     ch = pos < input.size() ? input[pos++] : '\0';
@@ -285,35 +282,96 @@ std::shared_ptr<RegexNode> Regex2AST::parse_Qmark(std::shared_ptr<RegexNode> nod
 std::shared_ptr<RegexNode> Regex2AST::parse_Escape() {
     next();
     std::vector<char> elements;
+    char ch_;
     if (ch == 'n') {
-        ch = '\n';
+        ch_ = '\n';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
     }
     if (ch == '\\') {
-        ch = '\\';
+        ch_ = '\\';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
     }
     if (ch == 't') {
-        ch = '\t';
+        ch_ = '\t';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
     }
     if (ch == 'r') {
-        ch = '\r';
+        ch_ = '\r';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
     }
     if (ch == 'v') {
-        ch = '\v';
+        ch_ = '\v';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
     }
     if (ch == 'f') {
-        ch = '\f';
+        ch_ = '\f';
         next();
-        return std::make_shared<Char>(ch);
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '[') {
+        ch_ = '[';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == ']') {
+        ch_ = ']';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '(') {
+        ch_ = '(';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == ')') {
+        ch_ = ')';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '{') {
+        ch_ = '{';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '}') {
+        ch_ = '}';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '^') {
+        ch_ = '^';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '.') {
+        ch_ = '.';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '?') {
+        ch_ = '?';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '+') {
+        ch_ = '+';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '*') {
+        ch_ = '*';
+        next();
+        return std::make_shared<Char>(ch_);
+    }
+    if (ch == '|') {
+        ch_ = '|';
+        next();
+        return std::make_shared<Char>(ch_);
     }
     if (ch == 'd') {
         elements = Digits;
