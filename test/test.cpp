@@ -9,9 +9,8 @@
 #include "test.h"
 
 void test_re() {
-    re::RE re1(R"(a{,3}b{2}c{1,})");
+    re::RE re1(R"(a.{2,3}b)");
     re1.compile();
-    std::cout<<re1.match_pos("dd")<<std::endl;
-    std::cout<<re1.match_pos("abbccq ")<<std::endl;
-    std::cout<<re1.match_pos("aaabbccccccccp\n")<<std::endl;
+    std::cout<<re1.match_pos("a__b")<<std::endl;
+    std::cout<<re1.match_pos("a vb")<<std::endl;
 }

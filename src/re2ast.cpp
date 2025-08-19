@@ -114,6 +114,10 @@ std::vector<char> Regex2AST::make_complement(std::vector<char> elements) {
 std::shared_ptr<RegexNode> Regex2AST::parse_Char() {
     char c = ch;
     next();
+    if (c == '.') {
+        std::vector<char> elements = Sigma;
+        return std::make_shared<Set>(elements);
+    }
     return std::make_shared<Char>(c);
 }
 
