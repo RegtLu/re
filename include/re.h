@@ -11,12 +11,14 @@
 
 namespace re {
     class DFANode;
+
     class RE {
         std::string re_str;
         std::shared_ptr<DFANode> root;
 
     public:
         explicit RE(std::string re_str) : re_str(std::move(re_str)) {
+            this->compile();
         }
 
         void compile();
